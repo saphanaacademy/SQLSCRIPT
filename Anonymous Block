@@ -1,0 +1,41 @@
+-- this syntax is used for testing anonymous blocks in HANA
+
+DO
+BEGIN
+END;
+
+CREATE PROCEDURE DONOTHING
+LANGUAGE SQLSCRIPT AS
+BEGIN
+	SELECT NULL FROM DUMMY;
+END;
+CALL DONOTHING;
+
+DO
+BEGIN
+	DECLARE a, d, i INT;
+	DECLARE b INT = 0;
+	DECLARE c INT DEFAULT 0;
+	DECLARE n VARCHAR(20) DEFAULT 'this code is junk';
+	CREATE GLOBAL TEMPORARY TABLE TBL (COL INT);
+	FOR i in 1..3 DO
+		INSERT INTO TBL VALUES (:i);
+		BEGIN
+			DECLARE d INT;
+			b = (:b + 1) * 6;
+			c = :i;
+		END;
+	END FOR;
+	t = SELECT * FROM TBL;
+	SELECT COUNT(*) INTO a FROM :t;
+	b = :b + :a + 1;
+	d = MONTH(CURRENT_DATE);
+	IF :d > 6
+	THEN
+		c = :c + 1;
+	ELSE 
+		c = :c + 2;	
+	END IF;
+	SELECT a AS A, b AS B, c AS C, n AS N FROM DUMMY;
+	DROP TABLE TBL RESTRICT;
+END;
